@@ -1,3 +1,4 @@
 ---
 # MOTD from Galaxy https://galaxy.ansible.com/adriagalin/motd
 - src: https://github.com/adriagalin/ansible.motd.git 
+  name: adriagalin.motd
