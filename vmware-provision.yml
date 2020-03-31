@@ -5,7 +5,16 @@
   roles:
   - vmware-provision
 
-- name: Standardize the new vm
-  hosts: newlinuxvm:newwindowsvm
+- name: Standardize the Linux VMs
+  hosts: newlinuxvm
+  roles:
+  - prep-new-vm
+  - adriagalin.motd
+    vars:
+      ag_motd_sysadmins_signature: Ansible Sys Admins
+      ag_motd_sysadmins_email: admin@example.com
+  
+- name: Standardize the Windows VMs
+  hosts: newwindowsvm
   roles:
   - prep-new-vm
