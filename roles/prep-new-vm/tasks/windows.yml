@@ -1,0 +1,34 @@
+---
+- name: Set timezone to 'Eastern Standard Time' (GMT-05:00)
+  win_timezone:
+    timezone: "{{ windows_timezone | default('Eastern Standard Time') }}"
+
+
+- name: Get product id and product key
+  win_product_facts:
+
+- name: Some info about this machine
+  debug:
+    msg: |
+      CHANNEL {{ ansible_os_license_channel }}
+      EDITION {{ ansible_os_license_edition }}
+      STATUS  {{ ansible_os_license_status }}
+      PRODUCT {{ ansible_os_product_id }}
+      LICENSE {{ ansible_os_product_key }}
+
+- name: Set the region format to English United States
+  win_region:
+    format: en-US
+    copy_settings: yes
+    location: 244
+    unicode_language: en-GB
+  register: region_result
+
+- name: "Change the hostname to {{ name_hostonly }}"
+  win_hostname:
+    name: "{{ name_hostonly }}"
+  register: hostname_result
+
+- name: Reboot
+  win_reboot:
+  when: region_result.reboot_required is defined and hostname_result.reboot_required

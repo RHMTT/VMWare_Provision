@@ -1,0 +1,78 @@
+---
+- name: "Deploy template {{ vm_template }} into a new VM called {{ new_vm_name }}"
+  vmware_guest:
+    hostname: "{{ vc_hostname | default(omit) }}"
+    username: "{{ vc_username | default(omit) }}"
+    password: "{{ vc_password | default(omit) }}"
+    validate_certs: "{{ vc_validate_certs | default(False) }}"
+    name: "{{ new_vm_name }}"
+    template: "{{ vm_template }}"
+    datacenter: "{{ vc_datacenter }}"
+    folder: "/{{ vc_datacenter }}/vm/{{ vm_folder }}"
+    state: poweredon
+    wait_for_ip_address: yes
+    disk:
+    - size_gb: "{{ vm_disk_size | default(omit) }}"
+      type: thin
+      datastore: "{{ vc_datastore }}"
+    hardware:
+      memory_mb: "{{ vm_ram_mb | default(omit) }}"
+      num_cpus: "{{ vm_cpu_count | default(omit) }}"
+      num_cpu_cores_per_socket: "{{ vm_core_count | default(omit) }}"
+      hotadd_cpu: "{{ hotadd_cpu | default(True) }}"
+      hotremove_cpu: "{{ hotremove_cpu| default(True) }}"
+      hotadd_memory: "{{ hotadd_memory | default(True) }}"
+    networks: 
+    - name: "{{ vm_network | default('VM Network') }}"
+      domain: "{{ vm_domain | default(omit) }}"
+    customization:
+      domain: "{{ vm_domain }}"
+      hostname: "{{ new_vm_name }}"
+  register: newvminfo
+  delegate_to: localhost
+  tags: clone
+
+- name: Enable WinRM
+  vmware_vm_shell:
+    hostname: "{{ vc_hostname | default(omit) }}"
+    username: "{{ vc_username | default(omit) }}"
+    password: "{{ vc_password | default(omit) }}"
+    validate_certs: "{{ vc_validate_certs | default(False) }}"
+    datacenter: "{{ vc_datacenter }}"
+    folder: "/{{ vc_datacenter }}/vm/{{ vm_folder }}"
+    vm_id: "{{ new_vm_name }}"
+    vm_username: "{{ vm_username }}"
+    vm_password: "{{ vm_password }}"
+    vm_shell: 'c:\windows\system32\windowspowershell\v1.0\powershell.exe'
+    vm_shell_args: "{{ shell_item }}"
+  with_items:
+    - '-command "& {Set-ExecutionPolicy Unrestricted}"'
+    - '-command "& {Invoke-Expression ((New-Object System.Net.Webclient).DownloadString(\"https://raw.githubusercontent.com/ansible/ansible/devel/examples/scripts/ConfigureRemotingForAnsible.ps1\"))}"'
+    - '-command "& {Set-ExecutionPolicy RemoteSigned}"'
+    - '-command "& {Enable-WSManCredSSP -Role Server -Force}"'
+  loop_control:
+    loop_var: shell_item
+  when: shell_commands is defined
+  tags: shell
+  delegate_to: localhost
+
+- name: New VM info
+  debug:
+    msg: "New VM {{ new_vm_name }} has IP address {{ newvminfo.instance.ipv4 }} and UUID {{ newvminfo.instance.hw_product_uuid }}"
+  when: newvminfo.instance.ipv4 is defined
+  ignore_errors: true
+
+- name: "add {{ newvminfo.instance.ipv4 }} host to group newwindowsvm"
+  add_host:
+    hostname: "{{ new_vm_name }}"
+    ansible_host: "{{ newvminfo.instance.ipv4 }}"
+    ansible_port: 5986
+    ansible_user: Administrator
+    ansible_password: redhat
+    ansible_connection: winrm
+    ansible_winrm_transport: credssp
+    ansible_winrm_server_cert_validation: ignore
+    name_hostonly: "{{ new_vm_name }}"
+    name_fqdn: "{{ new_vm_name }}.{{ vm_domain }}"
+    groups: newwindowsvm
+  changed_when: False
