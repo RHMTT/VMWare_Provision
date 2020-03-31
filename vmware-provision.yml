@@ -2,19 +2,24 @@
 - name: Build a VMware guest from template
   hosts: localhost
   gather_facts: no
-  roles:
-  - vmware-provision
+  tasks:
+  - include_role:
+      name: vmware-provision
 
 - name: Standardize the Linux VMs
   hosts: newlinuxvm
-  roles:
-  - prep-new-vm
-  - adriagalin.motd
+  tasks:
+  - include_role:
+      name: prep-new-vm 
+    vars:
+  - include_role:
+      name: adriagalin.motd
     vars:
       ag_motd_sysadmins_signature: Ansible Sys Admins
       ag_motd_sysadmins_email: admin@example.com
   
 - name: Standardize the Windows VMs
   hosts: newwindowsvm
-  roles:
-  - prep-new-vm
+  tasks:
+  - include_role:
+      name: prep-new-vm 
