@@ -2,8 +2,8 @@
 # tasks file for prep-new-vm
 - name: "Running windows vm prepare"
   include_tasks: windows.yml
-  when: newwindowsvm in group_names
+  when: "'newwindowsvm' in {{ group_names }}"
 
 - name: "Running linux vm prepare"
   include_tasks: linux.yml
-  when: newlinuxvm in group_names
+  when: "'newlinuxvm' in {{ group_names }}"
