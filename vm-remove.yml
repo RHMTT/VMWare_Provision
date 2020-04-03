@@ -1,5 +1,6 @@
 ---
 - name: Remove virtual machine
+  hosts: localhost
   gather_facts: no
   tasks:
   - name: Remove "{{ vm_name }}"
