@@ -11,4 +11,5 @@
       validate_certs: "{{ vc_validate_certs | default(False) }}"
       name: "{{ new_vm_name }}"
       state: absent
+      force: true
     delegate_to: localhost
