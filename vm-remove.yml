@@ -1,0 +1,13 @@
+---
+- name: Remove virtual machine
+  gather_facts: no
+  tasks:
+  - name: Remove "{{ vm_name }}"
+    vmware_guest:
+      hostname: "{{ vc_hostname | default(omit) }}"
+      username: "{{ vc_username | default(omit) }}"
+      password: "{{ vc_password | default(omit) }}"
+      validate_certs: "{{ vc_validate_certs | default(False) }}"
+      name: "{{ new_vm_name }}"
+      state: absent
+    delegate_to: localhost
