@@ -7,10 +7,3 @@ shell_commands:
     shell_args: "~/.ssh/authorized_keys"
   - shell: "/usr/bin/chmod"
     shell_args: "0600 ~/.ssh/authorized_keys"
-shell6_commands:
-  - shell: "/bin/mkdir"
-    shell_args: "~/.ssh -m 0700"
-  - shell: "/bin/touch"
-    shell_args: "~/.ssh/authorized_keys"
-  - shell: "/bin/chmod"
-    shell_args: "0600 ~/.ssh/authorized_keys"
