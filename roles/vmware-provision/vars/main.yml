@@ -1,9 +1,9 @@
 ---
 # vars file for vmware-guest-provision/
 shell_commands:
-  - shell: "/usr/bin/mkdir"
+  - shell: "/bin/mkdir"
     shell_args: "~/.ssh -m 0700"
-  - shell: "/usr/bin/touch"
+  - shell: "/bin/touch"
     shell_args: "~/.ssh/authorized_keys"
-  - shell: "/usr/bin/chmod"
+  - shell: "/bin/chmod"
     shell_args: "0600 ~/.ssh/authorized_keys"
