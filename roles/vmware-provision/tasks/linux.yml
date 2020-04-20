@@ -68,8 +68,7 @@
     vm_shell_args: "{{ shell_item.shell_args }}"
   delegate_to: localhost
   with_items:
-    - "{{ shell_commands when vm_template == 'RHEL7' or 'RHEL8' }}"
-    - "{{ shell6_commands when vm_template == 'RHEL5' or 'RHEL6' }}"
+    - "{{ shell_commands }}"
   loop_control:
     loop_var: shell_item
   when: shell_commands is defined
@@ -86,7 +85,7 @@
     vm_id: "{{ new_vm_name }}"
     vm_username: "{{ vm_username }}"
     vm_password: "{{ vm_password }}"
-    vm_shell: "/usr/bin/echo"
+    vm_shell: "/bin/echo"
     vm_shell_args: "{{ ssh_item }} >> ~/.ssh/authorized_keys"
   delegate_to: localhost
   with_items:
