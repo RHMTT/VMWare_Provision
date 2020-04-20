@@ -24,7 +24,7 @@
       hotadd_memory: "{{ hotadd_memory | default(True) }}"
     networks: 
     - name: "{{ vm_network | default('VM Network') }}"
-      domain: "{{ vm_domain | default(omit) }}"
+      start_connected: true
     customization:
       domain: "{{ vm_domain }}"
       hostname: "{{ new_vm_name }}"
